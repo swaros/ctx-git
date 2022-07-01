@@ -1,4 +1,55 @@
 task:
-  - id: status
+  
+  - id: check-have-changes
+    options:
+      invisible: true    
     script:
-      - git status
+      - "#@var GIT-CHANGES git status -s"
+      - "#@var GIT-STASH git stash list"
+       
+
+  - id: git-status
+    needs:
+      - check-have-changes
+  
+  - id: git-status
+    require:
+      variables:
+        GIT-CHANGES: "!"
+    script:
+      - echo "no local changes found" 
+
+  - id: git-status
+    require:
+      variables:
+        GIT-CHANGES: "*"
+    script:
+      - echo "found local changes"
+      - echo "------------------"
+      - echo "${GIT-CHANGES}"
+
+
+  - id: git-pull
+    needs:
+      - check-have-changes
+
+  - id: git-pull
+    require:
+      variables:
+        GIT-CHANGES: ""
+    script:
+      - git pull --rebase
+
+  - id: git-pull
+    require:
+      variables:
+        GIT-CHANGES: "*"
+        GIT-STASH: ""
+    script:
+      - echo "stash changes first"
+      - git stash
+      - git pull --rebase
+      - git stash pop
+  
+    
+
