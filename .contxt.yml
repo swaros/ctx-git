@@ -1,0 +1,4 @@
+task:
+  - id: status
+    script:
+      - git status
