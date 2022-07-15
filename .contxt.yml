@@ -1,3 +1,9 @@
+config:
+  variables:
+    GIT-CHANGES: ""
+    GIT-BRANCH: ""
+    GIT-URL: ""
+
 task:
   
   - id: check-have-changes
@@ -5,13 +11,42 @@ task:
       invisible: true    
     script:
       - "#@var GIT-CHANGES git status -s"
-      - "#@var GIT-STASH git stash list"
+      - "#@var GIT-STASH git stash list"      
        
+  - id: check-git-url
+    options:
+      invisible: true    
+    script:      
+      - "#@var GIT-URL git config --get remote.origin.url"
 
+  - id: check-git-branch
+    options:
+      invisible: true    
+    script:      
+      - "#@var GIT-BRANCH git rev-parse --abbrev-ref HEAD"      
+
+  #### show infos we have ############ 
   - id: git-status
     needs:
       - check-have-changes
-  
+      - check-git-url
+      - check-git-branch
+
+  - id: git-status
+    require:
+      variables:
+         GIT-BRANCH: "*"
+    script:
+       - echo "GIT BRANCH [${GIT-BRANCH}]"
+
+  - id: git-status
+    require:
+      variables:
+         GIT-URL: "*"
+    script:
+       - echo "GIT REPO   [${GIT-URL}]"
+
+
   - id: git-status
     require:
       variables:
@@ -27,8 +62,8 @@ task:
       - echo "found local changes"
       - echo "------------------"
       - echo "${GIT-CHANGES}"
-
-
+   
+  #### pull changes #################
   - id: git-pull
     needs:
       - check-have-changes
