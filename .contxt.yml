@@ -67,6 +67,13 @@ task:
   - id: git-pull
     needs:
       - check-have-changes
+      
+  - id: git-pull
+    script:
+      - echo " ---- changes"
+      - echo "${GIT-CHANGES}"    
+      - echo " ---- stash"
+      - echo "${GIT-STASH}"
 
   - id: git-pull
     require:
@@ -85,6 +92,14 @@ task:
       - git stash
       - git pull --rebase
       - git stash pop
-  
-    
 
+  - id: git-pull
+    require:
+      variables:
+        GIT-STASH: "*"
+    script:
+      - echo " --- stash exists already."
+      - echo " --- you need to clean the stash before. if you are sure this is not needed anymore"
+      - git stash show    
+      - echo "for removal of the stash use git stash drop"
+      
